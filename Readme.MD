@@ -32,7 +32,7 @@ Before running this application, ensure you have the following installed:
 git clone https://github.com/your-username/chatapp.git
 cd chatapp
 
-## 2. Set up the server
+### 2. Set up the server
 
 Navigate to the `server` directory and install dependencies:
 
