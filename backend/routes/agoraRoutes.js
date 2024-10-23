@@ -1,7 +1,7 @@
 const express = require("express");
-const { generateAgoraToken } = require("../controllers/agoraController");
+const { generateRtcToken } = require("../controllers/agoraController");
 const router = express.Router();
 
-router.post("/token", generateAgoraToken);
+router.post("/token", generateRtcToken);
 
 module.exports = router;

@@ -1,13 +1,10 @@
 const { RtcTokenBuilder, RtcRole } = require("agora-access-token");
 
-// Load your Agora app credentials from environment variables
 const AGORA_APP_ID = process.env.AGORA_APP_ID;
 const AGORA_APP_CERTIFICATE = process.env.AGORA_APP_CERTIFICATE;
 
-// Token expiration time (in seconds)
 const TOKEN_EXPIRATION_TIME = 3600; // 1 hour
 
-// Generate Agora RTC Token for video/audio calls
 const generateRtcToken = (req, res) => {
   const { channelName, uid } = req.body;
 

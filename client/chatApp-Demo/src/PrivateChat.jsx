@@ -1,34 +1,54 @@
 import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import io from "socket.io-client";
+import { sendMessage, getMessages } from "./services/api";
 
 const socket = io("http://localhost:5000");
 
-function PrivateChat({ match }) {
-  const chatId = match.params.chatId;
+function PrivateChat() {
+  const { chatId } = useParams();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
+  console.log(chatId);
 
   useEffect(() => {
+    // Fetch the chat history when the component mounts
+    const fetchMessages = async () => {
+      try {
+        const response = await getMessages(chatId);
+        setMessages(response.data);
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+      }
+    };
+
+    fetchMessages();
     socket.emit("joinRoom", chatId);
 
+    // Listen for new incoming messages
     socket.on("receiveMessage", (newMessage) => {
       setMessages((prevMessages) => [...prevMessages, newMessage]);
     });
 
     return () => {
-      socket.emit("leaveRoom", chatId);
+      socket.emit("leaveRoom", chatId); // Leave the room on unmount
     };
   }, [chatId]);
 
-  const sendMessage = () => {
+  const handleSendMessage = async () => {
     if (message.trim()) {
-      socket.emit("sendMessage", { chatId, sender: "userId", message });
-      setMessage("");
+      try {
+        await sendMessage({ chatId, sender: "userId", message }); // Sending message to API
+        socket.emit("sendMessage", { chatId, sender: "userId", message });
+        setMessage(""); // Clear the input field after sending
+      } catch (error) {
+        console.error("Error sending message:", error);
+      }
     }
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100">
+    <div className="flex flex-col  bg-gray-100">
       <div className="flex-grow overflow-y-auto p-4 bg-white shadow-lg rounded-md">
         {messages.map((msg, index) => (
           <div key={index} className="mb-2">
@@ -44,7 +64,7 @@ function PrivateChat({ match }) {
           placeholder="Type your message..."
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          onKeyPress={(e) => e.key === "Enter" && sendMessage()}
+          onKeyDown={(e) => e.key === "Enter" && handleSendMessage()} // Updated to onKeyDown
         />
       </div>
     </div>
